@@ -123,18 +123,31 @@ def count_attribute(data,primary,col):
     return data_count
 
 #==================================================================
-# Count Attribute
+# Print to Revised Excel
 #==================================================================
 
 def print_to_excel(revisedSheet,data_count,title_index):
     index_counter = title_index
     char_index = 1
     attribute_list = []
+    total = 0
+    grand_total = 0
+    attribute_totals = []
 
     for i in data_count:
         for l in i[1]:
+            grand_total += l[1]
             if attribute_list.count(l[0]) == 0:
                 attribute_list.append(l[0])
+
+    for att in attribute_list:
+        for i in data_count:
+            for l in i[1]:
+                if l[0] == att:
+                    total += l[1]
+        attribute_totals.append([att,total,(total/grand_total)])
+        total = 0
+
     
     #Title
     club_i = 'A' + str(index_counter)
@@ -161,11 +174,23 @@ def print_to_excel(revisedSheet,data_count,title_index):
     #total (#)
     club_i = 'A' + str(index_counter)
     revisedSheet[club_i] = "Total (#)"
+
+    for i in range(len(attribute_list)):
+        club_i = chr(ord('A') + char_index) + str(index_counter)
+        char_index += 1
+        revisedSheet[club_i] = attribute_totals[i][1]
+
     index_counter += 1
+    char_index = 1
 
     #total (%)
     club_i = 'A' + str(index_counter)
     revisedSheet[club_i] = "Total (%)"
+
+    for i in range(len(attribute_list)):
+        club_i = chr(ord('A') + char_index) + str(index_counter)
+        char_index += 1
+        revisedSheet[club_i] = attribute_totals[i][2]
 
     index_counter += 2
 
