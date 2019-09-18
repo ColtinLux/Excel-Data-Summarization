@@ -4,31 +4,97 @@
 
 from __future__ import division
 from datetime import date
-import numpy as np
-import matplotlib.pyplot as plt
+#import numpy as np
+#import matplotlib.pyplot as plt
 from openpyxl import Workbook
 from openpyxl import load_workbook
 
 #==================================================================
-# Main Function
+# ReportHeader
+#==================================================================
+class ReportHeader:
+    def __init__(self):
+        self.companyTitle = ''
+        self.reportType = ''
+        self.reportPeriod = ''
+        self.preparationDate = "Report Preparation Date: " + date.today().strftime("%m/%d/%Y")
+    
+    def setCompanyTitle(self, companyTitle):
+        self.companyTitle = companyTitle
+    
+    def setReportType(self, reportType):
+        self.reportType = reportType
+    
+    def setReportPeriod(self, reportPeriod):
+        self.reportPeriod = reportPeriod
+
+#==================================================================
+# Metadata
+#==================================================================
+class Metadata:
+    def __init__(self):
+        self.primaryAttribute = ''
+        self.summaryAttributes = ''
+    
+    def setPrimaryAttribute(self, column):
+        self.primaryAttribute = column.upper()
+
+    def setSummaryColumns(self, columns):
+        if(columns.isupper()):
+            self.summaryColumns = columns.split()
+        else:
+            columnsUpper = columns.upper()
+            self.summaryColumns = columnsUpper.split()
+    
+#==================================================================
+# ReportContent
+#==================================================================
+class ReportContent:
+    def __init__(self, primaryColumn, summaryColumn, dataSheet):
+        self.primaryColumn = primaryColumn
+        self.summaryColumn = summaryColumn
+        self.dataSheet = dataSheet        
+    
+    def generateResults(self):
+        if(self.primaryColumn == self.summaryColumn):
+            return 'Same'
+        else:
+            self.primaryColumnTitle = self.dataSheet[self.primaryColumn + '1'].value
+            self.summaryColumnTitle = self.dataSheet[self.summaryColumn + '1'].value
+            return 'Not Same'
+
+#==================================================================
+# Report
 #==================================================================
 class Report:
-    title = ''
-    preparationDate = ''
-    reportType = ''
-    reportPeriod = ''
-
     def __init__(self):
-        self.title = 'Boys & Girls Club of Hawaii'
-        self.preparationDate = "Report Preparation Date: " + date.today().strftime("%m/%d/%Y")
+        self.header = ReportHeader()
+        self.metadata = Metadata()
+        self.content = []
+    
+    def setHeader(self):
+        self.header.setCompanyTitle(raw_input("Company: "))
+        self.header.setReportType("Report Type: " + raw_input("Report Type: "))
+        self.header.setReportPeriod("Report Period: " + raw_input("Report Start Date: ") + " - " + raw_input("Report End Date: "))
+    
+    def setMetadata(self):
+        self.metadata.setPrimaryAttribute(raw_input("Primary Attribute Column: "))
+        self.metadata.setSummaryColumns(raw_input("Columns to Summarize: "))
+    
+    def setDataSheet(self, dataSheet):
+        self.dataSheet = dataSheet
+    
+    def setSummarySheet(self, summarySheet):
+        self.summarySheet = summarySheet
 
-    def setReportType():
-        reportType = "Report Type: " + raw_input("Report Type: ")
-        self.reportType = reportType
+    def generateContent(self):
+        for col in self.metadata.summaryColumns:
+            columnContent = ReportContent(self.metadata.primaryAttribute, col, self.dataSheet)
+            results = columnContent.generateResults()
+            self.content.append(results)
+        print self.content
 
-    def setReportPeriod():
-        reportPeriod = "Report Period: " + raw_input("Report Start Date: ") + " - " + raw_input("Report End Date: ")
-        self.reportPeriod = reportPeriod
+
 
 #==================================================================
 # Main Function
@@ -36,45 +102,51 @@ class Report:
 
 def main():
     #==================================================================
-    # Load Workbook
+    # Load Excel Workbook
     #==================================================================
     #Reading in existing Workbook
-    print '\nLoading Workbook ...'
+    print '\nLoading Excel Workbook ...'
     wbTitle = raw_input("Excel Title: ")
     wbTitle += '.xlsx'
     workBook = load_workbook(filename = wbTitle)
 
     #==================================================================
-    # Load Sheet & Create Summary Sheet
+    # Load Excel Sheet & Create Summary Sheet
     #==================================================================
-    print '\nLoading Sheet ...'
+    print '\nLoading Excel Sheet ...'
     dataSheetName = raw_input("Sheet Name: ")
     dataSheet = workBook[dataSheetName]
     summarySheetName = dataSheetName + 'Sum'
     summarySheet = workBook.create_sheet(title=summarySheetName)
 
     #==================================================================
-    # Print Title
+    # Create Report Object
     #==================================================================
-    print '\nPrinting Title ...'
+    print '\nLoading Report ...'
     report = Report()
-    report.setReportType()
-    report.setReportPeriod()
-    print report.reportType
-    print report.reportPeriod
+    report.setDataSheet(dataSheet)
+    report.setSummarySheet(summarySheet)
 
     #==================================================================
-    # Get User Info
+    # Create Report Object & Load Report Header
     #==================================================================
-    print '\nCollecting Metadata ...'
-    reportGroupingVar = raw_input("Grouping Column: ")
-    report
+    print '\nLoading Report Header ...'
+    #report.setHeader()
+
+    #==================================================================
+    # Load Report Metadata
+    #==================================================================
+    print '\nLoading Report Metadata ...'
+    report.setMetadata()
 
     #==================================================================
     # Summarize Data
     #==================================================================
+    print '\nGenerating Report ...'
+    report.generateContent()
+
     #==================================================================
-    # Print Summary
+    # Save Workbook
     #==================================================================
     workBook.save(filename = wbTitle)
 
