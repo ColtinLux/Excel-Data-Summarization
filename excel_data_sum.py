@@ -97,6 +97,7 @@ class ReportContent:
             self.summaryColumnTitle = self.dataSheet[self.summaryColumn + '1'].value
             valuePairs = []
             unduplicateValuePairs = []
+            unduplicateKeyValues = []
             summaryValues = []
             unduplicateSummaryValues = []
             index = 2
@@ -106,15 +107,19 @@ class ReportContent:
                 key = self.dataSheet[primaryIndex].value
                 value =  self.dataSheet[summaryIndex].value
                 valuePairs.append([key,value])
+                if unduplicateKeyValues.count(key) == 0:
+                    unduplicateKeyValues.append(key)
                 summaryValues.append(value)
-                if unduplicateValuePairs.count([key,value]) == 0:
-                    unduplicateValuePairs.append([key,value])
                 if unduplicateSummaryValues.count(value) == 0:
                     unduplicateSummaryValues.append(value)
                 index += 1
                 primaryIndex = self.primaryColumn + str(index)
                 summaryIndex = self.summaryColumn + str(index)
             self.result = [[self.summaryColumnTitle, self.primaryColumnTitle]]
+            for thisKey in unduplicateKeyValues:
+                for thisValue in unduplicateSummaryValues:
+                    if unduplicateValuePairs.count([thisKey,thisValue]) == 0:
+                        unduplicateValuePairs.append([thisKey,thisValue])
             for pair in unduplicateValuePairs:
                 count = valuePairs.count(pair)
                 self.result.append([pair,count])
@@ -191,7 +196,6 @@ class Report:
                 #START
                 letter = 'A'
                 number = number - 1
-                startLoc = letter + str(number)
 
                 #ROW
                 rowNumber = number + 1
@@ -224,7 +228,6 @@ class Report:
                     printLoc = printCol + str(printNum)
                     self.summarySheet[printLoc] = data[1]
                 number = rowNumber + 1
-
 
 
 #==================================================================
@@ -276,10 +279,7 @@ def main():
     print '\nGenerating Report ...'
     report.generateContent()
     report.printReport(True,True)
-
-    #==================================================================
-    # Save Workbook
-    #==================================================================
+    
     workBook.save(filename = wbTitle)
 
     
