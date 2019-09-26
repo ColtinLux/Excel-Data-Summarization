@@ -3,6 +3,7 @@
 # 9/18/2019
 
 from __future__ import division
+from Tkinter import *
 from datetime import date
 #import numpy as np
 #import matplotlib.pyplot as plt
@@ -80,7 +81,7 @@ class ReportContent:
                     unduplicateValues.append(value)
                 index += 1
                 primaryIndex = self.primaryColumn + str(index)
-            self.result = [[self.primaryColumnTitle]]
+            self.result = []
             totalCount = len(values)
             totalPercentage = 0.00
             for value in unduplicateValues:
@@ -89,8 +90,10 @@ class ReportContent:
                 totalPercentage += percentage
                 self.result.append([[value,'Count'],count])
                 self.result.append([[value,'Percentage'],percentage])
+            self.result.sort()
             self.result.append([['Total','Count'],totalCount])
             self.result.append([['Total','Percentage'],totalPercentage])
+            self.result = [[self.primaryColumnTitle]] + self.result
             return self.result
         else:
             self.primaryColumnTitle = self.dataSheet[self.primaryColumn + '1'].value
@@ -115,7 +118,7 @@ class ReportContent:
                 index += 1
                 primaryIndex = self.primaryColumn + str(index)
                 summaryIndex = self.summaryColumn + str(index)
-            self.result = [[self.summaryColumnTitle, self.primaryColumnTitle]]
+            self.result = []
             for thisKey in unduplicateKeyValues:
                 for thisValue in unduplicateSummaryValues:
                     if unduplicateValuePairs.count([thisKey,thisValue]) == 0:
@@ -123,12 +126,14 @@ class ReportContent:
             for pair in unduplicateValuePairs:
                 count = valuePairs.count(pair)
                 self.result.append([pair,count])
+            self.result.sort()
             totalCount = len(valuePairs)
             for value in unduplicateSummaryValues:
                 count = summaryValues.count(value)
                 percentage = round((count/totalCount),2)
                 self.result.append([['Total (#)',value],count])
                 self.result.append([['Total (%)',value],percentage])
+            self.result = [[self.summaryColumnTitle, self.primaryColumnTitle]] + self.result
             return self.result
 
 #==================================================================
@@ -140,16 +145,16 @@ class Report:
         self.metadata = Metadata()
         self.content = []
     
-    def setHeader(self):
+    def setHeader(self, company, reportType, reportStart, reportEnd):
         header = ReportHeader()
-        header.setCompanyTitle(raw_input("Company: "))
-        header.setReportType(raw_input("Report Type: "))
-        header.setReportPeriod(raw_input("Report Start Date: "), raw_input("Report End Date: "))
+        header.setCompanyTitle(company)
+        header.setReportType(reportType)
+        header.setReportPeriod(reportStart, reportEnd)
         self.header = header.getHeader()
     
-    def setMetadata(self):
-        self.metadata.setPrimaryAttribute(raw_input("Primary Attribute Column: "))
-        self.metadata.setSummaryColumns(raw_input("Columns to Summarize: "))
+    def setMetadata(self, primary, summary):
+        self.metadata.setPrimaryAttribute(primary)
+        self.metadata.setSummaryColumns(summary)
     
     def setDataSheet(self, dataSheet):
         self.dataSheet = dataSheet
@@ -235,53 +240,121 @@ class Report:
 #==================================================================
 
 def main():
-    #==================================================================
-    # Load Excel Workbook
-    #==================================================================
-    #Reading in existing Workbook
-    print '\nLoading Excel Workbook ...'
-    wbTitle = raw_input("Excel Title: ")
-    wbTitle += '.xlsx'
-    workBook = load_workbook(filename = wbTitle)
+    def click():
+        #==================================================================
+        # Load Excel Workbook
+        #==================================================================
+        #Reading in existing Workbook
+        print '\nLoading Excel Workbook ...'
+        wbTitle=wbTitleInput.get()
+        wbTitle += '.xlsx'
+        workBook = load_workbook(filename = wbTitle)
 
-    #==================================================================
-    # Load Excel Sheet & Create Summary Sheet
-    #==================================================================
-    print '\nLoading Excel Sheet ...'
-    dataSheetName = raw_input("Sheet Name: ")
-    dataSheet = workBook[dataSheetName]
-    summarySheetName = dataSheetName + 'Sum'
-    summarySheet = workBook.create_sheet(title=summarySheetName)
+        #==================================================================
+        # Load Excel Sheet & Create Summary Sheet
+        #==================================================================
+        print '\nLoading Excel Sheet ...'
+        dataSheetName=dataSheetNameInput.get()
+        dataSheet = workBook[dataSheetName]
+        summarySheetName = dataSheetName + 'Sum'
+        summarySheet = workBook.create_sheet(title=summarySheetName)
 
-    #==================================================================
-    # Create Report Object
-    #==================================================================
-    print '\nLoading Report ...'
-    report = Report()
-    report.setDataSheet(dataSheet)
-    report.setSummarySheet(summarySheet)
+        #==================================================================
+        # Create Report Object
+        #==================================================================
+        print '\nLoading Report ...'
+        report = Report()
+        report.setDataSheet(dataSheet)
+        report.setSummarySheet(summarySheet)
 
-    #==================================================================
-    # Create Report Object & Load Report Header
-    #==================================================================
-    print '\nLoading Report Header ...'
-    report.setHeader()
+        #==================================================================
+        # Create Report Object & Load Report Header
+        #==================================================================
+        print '\nLoading Report Header ...'
+        companyName = companyInput.get()
+        typeName = typeInput.get()
+        startDate = startInput.get()
+        endDate = endInput.get()
+        report.setHeader(companyName, typeName, startDate, endDate)
 
-    #==================================================================
-    # Load Report Metadata
-    #==================================================================
-    print '\nLoading Report Metadata ...'
-    report.setMetadata()
+        #==================================================================
+        # Load Report Metadata
+        #==================================================================
+        print '\nLoading Report Metadata ...'
+        primary = primaryInput.get()
+        summary = summaryInput.get()
+        report.setMetadata(primary, summary)
 
-    #==================================================================
-    # Summarize Data
-    #==================================================================
-    print '\nGenerating Report ...'
-    report.generateContent()
-    report.printReport(True,True)
+        #==================================================================
+        # Summarize Data
+        #==================================================================
+        print '\nGenerating Report ...'
+        report.generateContent()
+        report.printReport(True,True)
+        
+        workBook.save(filename = wbTitle)
     
-    workBook.save(filename = wbTitle)
+    def closeWindow():
+        window.destroy()
+        exit()
+    
+    def clearValues():
+        dataSheetNameInput.delete(0, END)
+        typeInput.delete(0, END)
+        summaryInput.delete(0, END)
+    
+    def clearAllValues():
+        wbTitleInput.delete(0, END)
+        dataSheetNameInput.delete(0, END)
+        companyInput.delete(0, END)
+        typeInput.delete(0, END)
+        startInput.delete(0, END)
+        endInput.delete(0, END)
+        primaryInput.delete(0, END)
+        summaryInput.delete(0, END)
+    
+    window = Tk()
+    window.title("Excel Data Summary")
+    window.configure(background="white")
 
+    Label(window, text="Excel Title: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=1, column=0)
+    wbTitleInput = Entry(window, width=50, bg="white", fg="black")
+    wbTitleInput.grid(row=1,column=1)
+
+    Label(window, text="Excel Sheet: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=2, column=0)
+    dataSheetNameInput = Entry(window, width=50, bg="white", fg="black")
+    dataSheetNameInput.grid(row=2,column=1)
+
+    Label(window, text="Company: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=4, column=0)
+    companyInput = Entry(window, width=50, bg="white", fg="black")
+    companyInput.grid(row=4,column=1)
+
+    Label(window, text="Report Type: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=5, column=0)
+    typeInput = Entry(window, width=50, bg="white", fg="black")
+    typeInput.grid(row=5,column=1)
+
+    Label(window, text="Start Date: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=6, column=0)
+    startInput = Entry(window, width=50, bg="white", fg="black")
+    startInput.grid(row=6,column=1)
+
+    Label(window, text="End Date: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=7, column=0)
+    endInput = Entry(window, width=50, bg="white", fg="black")
+    endInput.grid(row=7,column=1)
+
+    Label(window, text="Primary Attribute: ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=9, column=0)
+    primaryInput = Entry(window, width=50, bg="white", fg="black")
+    primaryInput.grid(row=9,column=1)
+
+    Label(window, text="Summary Attribute(s): ", width=19, bg="white", fg="black", font="none 12 bold").grid(row=10, column=0)
+    summaryInput = Entry(window, width=50, bg="white", fg="black")
+    summaryInput.grid(row=10,column=1)
+
+    Button(window, text="Submit", width=13, bg="white", activebackground="green", fg="black", font="none 12 bold", command=click).grid(row=11, column=0, columnspan=2)
+    Button(window, text="Clear Part", width=13, bg="white", fg="black", font="none 12 bold", command=clearValues).grid(row=12, column=0, columnspan=2)
+    Button(window, text="Clear All", width=13, bg="white", fg="black", font="none 12 bold", command=clearAllValues).grid(row=13, column=0, columnspan=2)
+    Button(window, text="Exit", width=13, bg="white", fg="black", font="none 12 bold", command=closeWindow).grid(row=14, column=0, columnspan=2)
+
+    window.mainloop()
     
 if __name__ == "__main__":
     main()
