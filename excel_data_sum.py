@@ -22,7 +22,11 @@ def main():
         print '\nLoading Excel Workbook ...'
         status.delete(1.0, END)
         status.insert(END, "Loading Excel Workbook ...")
-        path = '/Users/coltinlappinlux/Desktop/'
+        pathChoice = pathInput.get()
+        if pathChoice == 1:
+            path = '/Users/coltinlappinlux/Desktop/'
+        elif pathChoice == 2:
+            path = '/Users/coltinlappinlux/Documents/GitHub/Excel-Data-Summarization/'
         wbTitle = wbTitleInput.get()
         wbTitle += '.xlsx'
         finalPath = path + wbTitle
@@ -103,46 +107,53 @@ def main():
     window.title("Excel Data Summary")
     window.configure(background="white")
 
+    pathInput = IntVar()
+    pathInput.set(1)
+    
+    Label(window, text="Excel Location: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=0, column=0)
+    Radiobutton(window, text="Desktop", variable=pathInput, value=1, width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=0, column=1)
+    Radiobutton(window, text="Documents", variable=pathInput, value=2, width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=0, column=2)
+
     Label(window, text="Excel Title: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=1, column=0)
     wbTitleInput = Entry(window, width=50, bg="white", fg="black")
-    wbTitleInput.grid(row=1,column=1)
+    wbTitleInput.grid(row=1,column=1, columnspan=2)
 
     Label(window, text="Excel Sheet: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=2, column=0)
     dataSheetNameInput = Entry(window, width=50, bg="white", fg="black")
-    dataSheetNameInput.grid(row=2,column=1)
+    dataSheetNameInput.grid(row=2, column=1, columnspan=2)
 
     Label(window, text="Company: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=4, column=0)
     companyInput = Entry(window, width=50, bg="white", fg="black")
-    companyInput.grid(row=4,column=1)
+    companyInput.grid(row=4,column=1, columnspan=2)
 
     Label(window, text="Report Type: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=5, column=0)
     typeInput = Entry(window, width=50, bg="white", fg="black")
-    typeInput.grid(row=5,column=1)
+    typeInput.grid(row=5,column=1, columnspan=2)
 
     Label(window, text="Start Date: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=6, column=0)
     startInput = Entry(window, width=50, bg="white", fg="black")
-    startInput.grid(row=6,column=1)
+    startInput.grid(row=6,column=1, columnspan=2)
 
     Label(window, text="End Date: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=7, column=0)
     endInput = Entry(window, width=50, bg="white", fg="black")
-    endInput.grid(row=7,column=1)
+    endInput.grid(row=7,column=1, columnspan=2)
 
     Label(window, text="Primary Attribute: ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=9, column=0)
     primaryInput = Entry(window, width=50, bg="white", fg="black")
-    primaryInput.grid(row=9,column=1)
+    primaryInput.grid(row=9,column=1, columnspan=2)
 
     Label(window, text="Summary Attribute(s): ", width=19, bg="white", fg="black", font="none 12 bold", anchor=E).grid(row=10, column=0)
     summaryInput = Entry(window, width=50, bg="white", fg="black")
-    summaryInput.grid(row=10,column=1)
+    summaryInput.grid(row=10,column=1, columnspan=2)
 
     status = Text(window, height=7, fg="white", bg="black", font="none 12 bold")
     status.tag_configure("center", justify='center')
-    status.grid(row=11, column=0, columnspan=2)
+    status.grid(row=11, column=0, columnspan=3)
 
-    Button(window, text="Submit", width=13, bg="white", activebackground="green", fg="black", font="none 12 bold", command=click).grid(row=12, column=0, columnspan=2)
-    Button(window, text="Clear Part", width=13, bg="white", fg="black", font="none 12 bold", command=clearValues).grid(row=13, column=0, columnspan=2)
-    Button(window, text="Clear All", width=13, bg="white", fg="black", font="none 12 bold", command=clearAllValues).grid(row=14, column=0, columnspan=2)
-    Button(window, text="Exit", width=13, bg="white", fg="black", font="none 12 bold", command=closeWindow).grid(row=15, column=0, columnspan=2)
+    Button(window, text="Submit", width=13, bg="white", activebackground="green", fg="black", font="none 12 bold", command=click).grid(row=12, column=0, columnspan=3)
+    Button(window, text="Clear Part", width=13, bg="white", fg="black", font="none 12 bold", command=clearValues).grid(row=13, column=0, columnspan=3)
+    Button(window, text="Clear All", width=13, bg="white", fg="black", font="none 12 bold", command=clearAllValues).grid(row=14, column=0, columnspan=3)
+    Button(window, text="Exit", width=13, bg="white", fg="black", font="none 12 bold", command=closeWindow).grid(row=15, column=0, columnspan=3)
 
     window.mainloop()
     
