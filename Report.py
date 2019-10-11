@@ -80,13 +80,14 @@ class ReportContent:
             totalPercentage = 0.00
             for value in unduplicateValues:
                 count = values.count(value)
-                percentage = round((count/totalCount),2)
+                percentage = float(count)/float(totalCount)
+                percentage = round(percentage,2)
                 totalPercentage += percentage
                 self.result.append([[value,'Count'],count])
                 self.result.append([[value,'Percentage'],percentage])
             self.result.sort()
             self.result.append([['Total','Count'],totalCount])
-            self.result.append([['Total','Percentage'],totalPercentage])
+            self.result.append([['Total','Percentage'],round(totalPercentage,0)])
             self.result = [[self.primaryColumnTitle]] + self.result
             return self.result
         else:
@@ -124,7 +125,8 @@ class ReportContent:
             totalCount = len(valuePairs)
             for value in unduplicateSummaryValues:
                 count = summaryValues.count(value)
-                percentage = round((count/totalCount),2)
+                percentage = float(count)/float(totalCount)
+                percentage = round(percentage,2)
                 self.result.append([['Total (#)',value],count])
                 self.result.append([['Total (%)',value],percentage])
             self.result = [[self.summaryColumnTitle, self.primaryColumnTitle]] + self.result
@@ -208,6 +210,8 @@ class Report:
                 columnIndexList = []
                 rows = []
                 rowIndexList = []
+
+                print contentItem
                 
                 for data in contentItem:
                     if data[0][0] not in rows:
